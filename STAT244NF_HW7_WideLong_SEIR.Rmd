@@ -1,0 +1,104 @@
+---
+title: 'Homework 7: Wide/Long Form Data Conversion; '
+subtitle: "STAT 244NF: Infectious Disease Modeling"
+author: "YOUR NAME HERE"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(dplyr)
+```
+
+## Instructions:
+
+1. Please replace "YOUR NAME HERE" under author above with your name before you knit your final document for submission.
+2. All of your homework needs to be completed in this document, whether it requires R or just typed responses. As we incorporate more statistical computing into the course, it will be important that you are comfortable with R Markdown, so start now. Remember that R Markdown gives us a convenient framework for reproducible statistical reports because it contains a complete record of our analyses and conclusions.
+3. You may knit to PDF, HTML, or Word (click on the drop-down menu for Knit to choose the file output type). 
+4. Before submitting your work, please make sure the knitted file is well organized, legible, and looks the way you expect!
+5. Please include the names of any classmates with whom you worked on this homework, as well as any external resources that you might have used.
+6. This homework assignment is **due on Tuesday, April 2, 2024 and should be submitted to Gradescope**.
+
+- *Collaborators:*
+
+- *External resources:*
+
+## Converting wide form to long form (and back)
+
+Generally speaking, data are presented in two "shapes", wide format and long format. For our purposes, the wide format refers to the data frame(s) where we have multiple compartment columns for each time point (e.g., names are Time, S, I, R, etc.), while the long format has had three columns, time, compartment, and count, where values are repeated both in the time and compartment columns. Wide and long formats often show up in cases of repeated measures, like in longitudinal studies, where measurements are made on the same individuals at different points in time. Here, we are going to learn some ways to use existing functions in R to convert between wide and long formats, rather than having to code it ourselves. 
+
+### reshape2 package
+
+Work through this entire tutorial written by Timothy Carsel at the University of Illinois, Chicago, to transition between wide format and long format using `melt()` and `cast()` from the `reshape2`` R package.
+
+Tutorial link: https://ademos.people.uic.edu/Chapter8.html
+
+```{r}
+# install.packages("reshape2")
+library(reshape2)
+
+
+```
+
+### tidyverse package
+
+Work through this entire tutorial from Chapter 5 of the Data Wrangling text by Altman, Behrman, and Wickham from Stanford on basic pivoting using `pivot_longer` and `pivot_wider` from the `tidyverse` package. 
+
+Tutorial link: https://dcl-wrangle.stanford.edu/pivot-basic.html 
+
+```{r}
+# install.packages("tidyverse")
+# install.packages("dcldata")
+library(tidyverse)
+library(dcldata)
+
+
+```
+
+## Revisiting Mumps
+
+Mumps is a viral illness characterized by fever, headache, muscle pain, lethargy, and loss of appetite, as well as swelling of facial glands. While children in the United States are vaccinated for mumps as part of the standard course of childhood vaccinations, there have still been large outbreaks of mumps on college campuses including Harvard University (2016), The Ohio State University (2014), and the University of Iowa (2006, 2016). (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8790351/).
+
+According to the CDC, the average incubation period for mumps is 16-18 days, although it can range from 12 to 25 days at the extremes. Individuals become infectious 2-3 days before facial swelling begins, and remain infectious for about 5 days after swelling begins. Since the incubation period is the time from exposure to symptom onset, and we are told that individuals are infectious 2-3 days before swelling begins (before symptom onset), this suggests a pre-infectious period of 13-16 days, with a larger range of 9 to 23 days at the extremes. The presence of this pre-infectious period suggests that an appropriate model for mumps is an SEIR model, which we can capture with the following. We are also assuming this is a fulling immunizing infection. The basic reproductive number ranges from 4 to 7. 
+
+For this modeling exercise, we will use the following model.
+
+SEIR model differencing equations:
+
+$$S_t=S_{t-1}-E^{(SE)}_t$$
+$$E_t=E_{t-1}+E^{(SE)}_t-I^{(EI)}_t$$
+$$I_t=I_{t-1}+I^{(EI)}_t-R^{(IR)}_t$$
+$$R_t=R_{t-1}+R^{(IR)}_t$$
+where $\lambda_t=1-e^{-c_e\frac{I_{t-1}}{N}}$, $\pi=1-e^{-\frac{1}{D'}}$, and $\rho=1-e^{-\frac{1}{D}}$, where $D'$ and $D$ are the pre-infectious and infectious periods, respectively. Recall, we have three random variables at each time point:
+
+$$E_t^{(SE)} \sim \text{Binomial}(S_{t-1}, \lambda_t)$$
+
+$$I_t^{(EI)} \sim \text{Binomial}(E_{t-1}, \pi)$$
+
+$$R_t^{(IR)} \sim \text{Binomial}(I_{t-1}, \rho)$$
+
+**SEIR 1. Write a function to run a stochastic simulation of a mumps outbreak (the stochastic version of the function you wrote in Homework 6). Call your function `SEIR_simulation`. In order to receive full credit, your function must do the following:**
+
+- use the basic reproductive number (let's call it RN), N, S0, E0, I0, pD (this is $D'$), D, and TotalTime as variables. Note, if you prefer other names, you can use any informative variable names that are valid in R, but they have to be variables in the model - they cannot be fixed quantities, i.e. numbers. Also, note that N is the same at all time points, so you can get an initial value for the R compartment if you know N, S0, E0, and I0;
+
+- return a data frame in **wide format**, with columns for each of the compartment counts (i.e. S, E, I, R), as well as time.
+
+```{r}
+
+```
+
+**SEIR 2. Verify that your function works by running it for the following values: N=1000, S0=999, E0=0, I0=1, RN=5.5, pD=13 days, D=7 days, TotalTime=180 days. To ensure we all get the same results for purposes of grading, please set your seed to 10 before running your function.**
+
+```{r}
+
+```
+
+**SEIR 3. Using either the methods from the tidyverse package or reshape2, change the data produced in SEIR 1. to long format, with three columns: time, compartment, and count. ONLY information for S, E, I, R should be included in this data frame. Do not include information for E_SE, I_EI, R_IR, or lambda_t.**
+
+```{r}
+
+```
+
